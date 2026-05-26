@@ -33,6 +33,25 @@ export async function POST(request: Request) {
   }
 }
 
+export async function PUT(request: Request) {
+  try {
+    const sql = getSQL();
+    const { id, section, grp, location } = await request.json();
+    if (!id) {
+      return NextResponse.json({ error: 'Missing id' }, { status: 400 });
+    }
+    const result = await sql`
+      UPDATE employees SET section = ${section}, grp = ${grp}, location = ${location || ''}
+      WHERE id = ${id}
+      RETURNING id, name, section, grp, location, active
+    `;
+    return NextResponse.json({ employee: result[0] });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
 export async function DELETE(request: Request) {
   try {
     const sql = getSQL();

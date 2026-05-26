@@ -87,3 +87,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const sql = getSQL();
+    const { searchParams } = new URL(request.url);
+    const date = searchParams.get('date');
+    if (!date) {
+      return NextResponse.json({ error: 'Missing date parameter' }, { status: 400 });
+    }
+    await sql`DELETE FROM attendance WHERE date = ${date}::date`;
+    return NextResponse.json({ success: true });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
